@@ -114,7 +114,7 @@ def haversine(lat1, lng1, lat2, lng2):
 if __name__ == "__main__":
     # Read data file
     convenience_gps = pd.read_csv("./convenience_shop.csv").values
-    ohca_gps = pd.read_csv("./OHCA_location.csv").values
+    ohca_gps = pd.read_csv("./OHCA.csv").values
     convenience_num = convenience_gps.shape[0]
     ohca_num = ohca_gps.shape[0]
     gps_distance = [[0 for i in range(convenience_num)] for j in range(ohca_num)]
