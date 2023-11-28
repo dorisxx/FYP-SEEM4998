@@ -4,7 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 import copy
-#随机生成解
+# Randomly generate a population of chromosomes
 def generate_population(size):
     population = []
     for _ in range(size):
@@ -13,15 +13,20 @@ def generate_population(size):
         population.append(chromosome)
     return population
 
+# Calculate the fitness score of each chromosome
 def fitness_calc(chromosome):
     wheight = 0
     for gen in range(ohca_num):
         distance_list = [gps_distance[gen][i] for i in chromosome]
+        # Count coverable OHCA cases
+        #wheight+= 1 if min(distance_list) <=distance_threshold else 0
         wheight+= 1/(min(distance_list)**2) if min(distance_list) <=distance_threshold else 0
     return wheight
 
+# Roulette wheel selection method
 def roulette_wheel_selection(population, fitness):
     total_fitness = sum(fitness)
+    # Selection probability of each candidate site
     probabilities = [f / total_fitness for f in fitness]
 
     cumulative_probabilities = []
@@ -107,7 +112,7 @@ def haversine(lat1, lng1, lat2, lng2):
     return meter
 
 if __name__ == "__main__":
-    # 输入数据路径
+    # Read data file
     convenience_gps = pd.read_csv("./convenience_shop.csv").values
     ohca_gps = pd.read_csv("./OHCA_location.csv").values
     convenience_num = convenience_gps.shape[0]
@@ -116,8 +121,8 @@ if __name__ == "__main__":
     for i in range(ohca_num):
         for j in range(convenience_num):
             gps_distance[i][j] = haversine(ohca_gps[i][0], ohca_gps[i][1], convenience_gps[j][0], convenience_gps[j][1])
-    size = 100
-    maxgens = 1000
+    size = 400
+    maxgens = 400
     crossover_rate = 0.8
     mutate_rate = 0.01
     distance_threshold = 100
@@ -133,24 +138,24 @@ if __name__ == "__main__":
         if max(fitness_list) > fitness_best:
             fitness_best = max(fitness_list)
             best_pop = population[fitness_list.index(max(fitness_list))]
-        print(f"Generation {generation + 1} 最高权重：{fitness_best}")
-        # 轮盘赌选择法
+        print(f"Generation {generation + 1} The highest weight：{fitness_best}")
+        # Roulette wheel selection method
         
         offspring = [best_pop]
         while len(offspring) < size:
             parents = roulette_wheel_selection(population, fitness_list)
             while parents[0] == parents[1]:
                 parents = roulette_wheel_selection(population, fitness_list)
-            # 交叉
+            # Crossover
             child1,child2 = crossover(parents,crossover_rate)
-            # 变异
+            # Mutation
             child1 = mutate(child1,mutate_rate)
             child2 = mutate(child2,mutate_rate)
             offspring.append(child1)
             offspring.append(child2)
         population = copy.deepcopy(offspring)
-    print(f"最优权重：{fitness_best}")
-    print(f"最优放置AED的地点编号：{best_pop}")
+    print(f"The best fitness score：{fitness_best}")
+    print(f"Optimal soultions：{best_pop}")
     plt.figure()
     plt.title(f'Fitness')
     plt.plot(fitness_best_list)
